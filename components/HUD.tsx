@@ -1,9 +1,9 @@
 import React from 'react';
 import { useGameStore } from '../store';
-import { Gamepad2, Coins, Zap, Coffee } from 'lucide-react';
+import { Gamepad2, Coins, Zap, Coffee, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export const HUD: React.FC = () => {
+export const HUD: React.FC<{ onOpenHelp?: () => void }> = ({ onOpenHelp }) => {
   const { xp, coins, level, isRecruiterMode, toggleRecruiterMode, resetGame, powerups } = useGameStore();
 
   // XP needed for next level formula inverse: ((Level) / 0.1)^2
@@ -117,6 +117,13 @@ export const HUD: React.FC = () => {
                 title="Reset Game"
             >
                 <span className="text-xs">RESET</span>
+            </button>
+            <button
+                onClick={() => onOpenHelp && onOpenHelp()}
+                className="p-2 text-slate-500 hover:text-white transition-colors"
+                title="Help"
+            >
+                <HelpCircle className="w-5 h-5" />
             </button>
         </div>
       </div>

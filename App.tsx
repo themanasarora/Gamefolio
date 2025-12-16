@@ -8,10 +8,13 @@ import { View } from './types';
 import { LayoutDashboard, ShoppingCart, Trophy, User, Code2, FolderGit2, FileText, Menu, X } from 'lucide-react';
 import { useGameStore } from './store';
 import { AnimatePresence, motion } from 'framer-motion';
+import Instructions from './components/Instructions';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('DASHBOARD');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Instructions modal visibility (first-time help)
+  const [showInstructions, setShowInstructions] = useState(false);
   
   const { isRecruiterMode, unlockedSections, powerups, addXp, addCoins, checkBuffs } = useGameStore();
 
@@ -32,9 +35,28 @@ const App: React.FC = () => {
       return () => clearInterval(interval);
   }, [powerups.hasAutoCoder, isRecruiterMode, checkBuffs, addXp, addCoins]);
 
+  // Show instructions automatically when a user first visits the dashboard
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem('devquest_seen_instructions');
+      if (!seen && currentView === 'DASHBOARD') {
+        setShowInstructions(true);
+      }
+    } catch (e) {
+      // localStorage may be unavailable in some environments
+    }
+  }, [currentView]);
+
   const handleNav = (view: View) => {
     setCurrentView(view);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleCloseInstructions = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      try { localStorage.setItem('devquest_seen_instructions', '1'); } catch (e) {}
+    }
+    setShowInstructions(false);
   };
 
   const NavItem = ({ view, icon: Icon, label }: { view: View; icon: any; label: string }) => {
@@ -61,7 +83,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-indigo-500/30">
-      <HUD />
+      <HUD onOpenHelp={() => setShowInstructions(true)} />
+      <Instructions show={showInstructions} onClose={handleCloseInstructions} />
 
       <main className="pt-24 pb-8 px-4 h-full min-h-screen flex gap-6 max-w-7xl mx-auto h-[calc(100vh-6rem)]">
         
